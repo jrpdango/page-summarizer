@@ -4,6 +4,7 @@ import sqlite3 from 'sqlite3';
 import puppeteer from 'puppeteer';
 import { summarize } from './services/ai.js';
 import { setJobStatus } from './utils/setJobStatus.js';
+import { createJob } from './utils/createJob.js';
 
 const app = express();
 app.use(express.json());
@@ -31,23 +32,11 @@ app.post('/', async (req, res) => {
         return;
     }
 
-    const uuid = crypto.randomUUID();
-    db.run('INSERT INTO jobs (uuid, link, req_status) VALUES ($uuid, $url, "pending")', { $uuid: uuid, $url: url }, function(err) {
-        if(err) {
-            // Error inserting to DB
-            res.send({
-                uuid: uuid,
-                url,
-                status: 'failed',
-                error: 'Failed to save job to DB'
-            });
-            return;
-        }
-        res.send({
-            uuid: uuid,
-            url,
-            status: 'pending'
-        });
+    const lastInsertedUUID = createJob({
+        db,
+        res,
+        url,
+        status: 'pending'
     });
     
     const page = await browser.newPage();
@@ -59,7 +48,7 @@ app.post('/', async (req, res) => {
     } catch(error) {
         setJobStatus({
             db,
-            uuid: uuid,
+            uuid: lastInsertedUUID,
             status: 'failed',
             result: 'Failed to retrieve text content'
         });
@@ -76,7 +65,7 @@ app.post('/', async (req, res) => {
     } catch(error) {
         setJobStatus({
             db,
-            uuid: uuid,
+            uuid: lastInsertedUUID,
             status: 'failed',
             result: 'Failed to fetch AI response'
         });
@@ -85,7 +74,7 @@ app.post('/', async (req, res) => {
 
     setJobStatus({
         db,
-        uuid: uuid,
+        uuid: lastInsertedUUID,
         status: 'completed',
         result: aiResponse.response.text()
     });

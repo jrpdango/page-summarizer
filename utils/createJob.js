@@ -1,22 +1,21 @@
 export const createJob = ({ db, res, url, status }) => {
-    let lastInsertedId;
-    db.run('INSERT INTO jobs (link, req_status) VALUES ($url, $status)', { $url: url, $status: status }, function(err) {
-        lastInsertedId = this.lastID;
+    const uuid = crypto.randomUUID();
+    db.run('INSERT INTO jobs (uuid, link, req_status) VALUES ($uuid, $url, $status)', { $uuid: uuid, $url: url, $status: status }, function(err) {
         if(err) {
             // Error inserting to DB
             res.send({
-                id: this.lastID,
+                uuid: uuid,
                 url,
                 status: 'failed',
                 error: 'Failed to save job to DB'
             });
-            return;
+            throw err;
         }
         res.send({
-            id: this.lastID,
+            uuid: uuid,
             url,
             status: 'pending'
         });
     });
-    return lastInsertedId;
+    return uuid;
 };
