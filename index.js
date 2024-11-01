@@ -18,7 +18,7 @@ app.post('/', async (req, res) => {
     }
 
     let lastInsertedId;
-    db.run('INSERT INTO jobs (is_completed, is_error) VALUES (FALSE, FALSE)', function(err) {
+    db.run('INSERT INTO jobs (req_status) VALUES ("pending")', function(err) {
         lastInsertedId = this.lastID;
         if(err) {
             // Error inserting to DB
@@ -39,7 +39,18 @@ app.post('/', async (req, res) => {
     
     const page = await browser.newPage();
     await page.goto(url);
-    const article = await page.waitForSelector('.article-content');
+
+    let article; 
+    try {
+        article = await page.waitForSelector('.article-content');
+    } catch(error) {
+        db.run('UPDATE jobs SET (result, req_status) = ($result, "failed") WHERE id = $id', {
+            $result: 'Failed to retrieve text content',
+            $id: lastInsertedId
+        });
+        page.close();
+        return;
+    }
     const text = await article.evaluate(el => el.textContent);
     page.close();
 
@@ -48,14 +59,14 @@ app.post('/', async (req, res) => {
         aiResponse = await summarize(text);
 
     } catch(error) {
-        db.run('UPDATE jobs SET (result, is_completed, is_error) = ($result, TRUE, TRUE) WHERE id = $id', {
+        db.run('UPDATE jobs SET (result, req_status) = ($result, "failed") WHERE id = $id', {
             $result: 'Failed to fetch AI response',
             $id: lastInsertedId
         });
         return;
     }
 
-    db.run('UPDATE jobs SET (result, is_completed) = ($result, TRUE) WHERE id = $id', {
+    db.run('UPDATE jobs SET (result, req_status) = ($result, "completed") WHERE id = $id', {
         $result: aiResponse.response.text(),
         $id: lastInsertedId
     });
@@ -71,13 +82,13 @@ app.get('/', (req, res) => {
         return;
     }
 
-    db.get('SELECT id, result, is_completed, is_error FROM jobs WHERE id = $id', {
+    db.get('SELECT id, result, req_status FROM jobs WHERE id = $id', {
         $id: id
     }, (err, row) => {
         res.send({
             id,
             result: row.result,
-            status: 'completed'
+            status: row.req_status
         });
     });
 });
