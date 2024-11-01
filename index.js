@@ -19,7 +19,7 @@ app.post('/', async (req, res) => {
     }
 
     let lastInsertedId;
-    db.run('INSERT INTO jobs (req_status) VALUES ("pending")', function(err) {
+    db.run('INSERT INTO jobs (link, req_status) VALUES ($url, "pending")', { $url: url }, function(err) {
         lastInsertedId = this.lastID;
         if(err) {
             // Error inserting to DB
@@ -89,7 +89,7 @@ app.get('/', (req, res) => {
         return;
     }
 
-    db.get('SELECT id, result, req_status FROM jobs WHERE id = $id', {
+    db.get('SELECT id, link, result, req_status FROM jobs WHERE id = $id', {
         $id: id
     }, (err, row) => {
         if(err || !row) {
@@ -101,6 +101,7 @@ app.get('/', (req, res) => {
         }
         res.send({
             id,
+            url: row.link,
             result: row.result,
             status: row.req_status
         });
