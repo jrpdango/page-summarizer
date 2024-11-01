@@ -92,6 +92,13 @@ app.get('/', (req, res) => {
     db.get('SELECT id, result, req_status FROM jobs WHERE id = $id', {
         $id: id
     }, (err, row) => {
+        if(err || !row) {
+            // Error retrieving from DB
+            res.status(400).send({
+                error: 'Failed to retrieve job from DB. Try checking if the provided ID is correct'
+            });
+            return;
+        }
         res.send({
             id,
             result: row.result,
