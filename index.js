@@ -3,6 +3,7 @@ import 'dotenv/config';
 import sqlite3 from 'sqlite3';
 import puppeteer from 'puppeteer';
 import { summarize } from './services/ai.js';
+import { setJobStatus } from './utils/setJobStatus.js';
 
 const app = express();
 app.use(express.json());
@@ -44,9 +45,11 @@ app.post('/', async (req, res) => {
     try {
         article = await page.waitForSelector('.article-content');
     } catch(error) {
-        db.run('UPDATE jobs SET (result, req_status) = ($result, "failed") WHERE id = $id', {
-            $result: 'Failed to retrieve text content',
-            $id: lastInsertedId
+        setJobStatus({
+            db,
+            id: lastInsertedId,
+            status: 'failed',
+            result: 'Failed to retrieve text content'
         });
         page.close();
         return;
@@ -59,19 +62,23 @@ app.post('/', async (req, res) => {
         aiResponse = await summarize(text);
 
     } catch(error) {
-        db.run('UPDATE jobs SET (result, req_status) = ($result, "failed") WHERE id = $id', {
-            $result: 'Failed to fetch AI response',
-            $id: lastInsertedId
+        setJobStatus({
+            db,
+            id: lastInsertedId,
+            status: 'failed',
+            result: 'Failed to fetch AI response'
         });
         return;
     }
 
-    db.run('UPDATE jobs SET (result, req_status) = ($result, "completed") WHERE id = $id', {
-        $result: aiResponse.response.text(),
-        $id: lastInsertedId
+    setJobStatus({
+        db,
+        id: lastInsertedId,
+        status: 'completed',
+        result: aiResponse.response.text()
     });
 
-    console.log(aiResponse.response.text());
+    console.log('Job done');
 });
 
 app.get('/', (req, res) => {
