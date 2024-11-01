@@ -4,5 +4,6 @@ CREATE TABLE jobs (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     link TEXT,
     result TEXT,
-    req_status TEXT
+    req_status TEXT,
+    error_message TEXT
 );

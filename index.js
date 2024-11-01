@@ -15,6 +15,22 @@ const browser = await puppeteer.launch();
 
 app.post('/', async (req, res) => {
     const url = req.body.url;
+    if(!url) {
+        createJob({
+            db,
+            res,
+            status: 'failed',
+            errorMessage: 'POST body must have a "url" property'
+        });
+        return;
+    }
+
+    const lastInsertedUUID = createJob({
+        db,
+        res,
+        url,
+        status: 'pending'
+    });
 
     try {
         const urlObj = new URL(url);
@@ -26,18 +42,6 @@ app.post('/', async (req, res) => {
         res.status(400).send('Error: invalid URL');
         return;
     }
-    
-    if(!url) {
-        res.status(400).send('Error: POST body must have a "url" property.');
-        return;
-    }
-
-    const lastInsertedUUID = createJob({
-        db,
-        res,
-        url,
-        status: 'pending'
-    });
     
     const page = await browser.newPage();
     await page.goto(url);
@@ -90,7 +94,7 @@ app.get('/', (req, res) => {
         return;
     }
 
-    db.get('SELECT id, link, result, req_status FROM jobs WHERE uuid = $uuid', {
+    db.get('SELECT id, link, result, req_status, error_message FROM jobs WHERE uuid = $uuid', {
         $uuid: uuid
     }, (err, row) => {
         if(err || !row) {
@@ -100,11 +104,21 @@ app.get('/', (req, res) => {
             });
             return;
         }
+        if(row.error_message) {
+            res.send({
+                uuid,
+                url: row.link,
+                result: row.result,
+                status: row.req_status,
+                error: row.error_message
+            });
+            return;
+        }
         res.send({
             uuid,
             url: row.link,
             result: row.result,
-            status: row.req_status
+            status: row.req_status,
         });
     });
 });
