@@ -1,7 +1,7 @@
-export const setJobStatus = ({ db, id, status, result }) => {
-    return db.run(`UPDATE jobs SET (result, req_status) = ($result, $status) WHERE id = $id`, {
+export const setJobStatus = ({ db, uuid, status, result }) => {
+    return db.run(`UPDATE jobs SET (result, req_status) = ($result, $status) WHERE uuid = $uuid`, {
         $result: result,
         $status: status,
-        $id: id
+        $uuid: uuid
     });
 };

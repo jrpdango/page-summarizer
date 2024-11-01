@@ -31,13 +31,12 @@ app.post('/', async (req, res) => {
         return;
     }
 
-    let lastInsertedId;
-    db.run('INSERT INTO jobs (link, req_status) VALUES ($url, "pending")', { $url: url }, function(err) {
-        lastInsertedId = this.lastID;
+    const uuid = crypto.randomUUID();
+    db.run('INSERT INTO jobs (uuid, link, req_status) VALUES ($uuid, $url, "pending")', { $uuid: uuid, $url: url }, function(err) {
         if(err) {
             // Error inserting to DB
             res.send({
-                id: this.lastID,
+                uuid: uuid,
                 url,
                 status: 'failed',
                 error: 'Failed to save job to DB'
@@ -45,7 +44,7 @@ app.post('/', async (req, res) => {
             return;
         }
         res.send({
-            id: this.lastID,
+            uuid: uuid,
             url,
             status: 'pending'
         });
@@ -60,7 +59,7 @@ app.post('/', async (req, res) => {
     } catch(error) {
         setJobStatus({
             db,
-            id: lastInsertedId,
+            uuid: uuid,
             status: 'failed',
             result: 'Failed to retrieve text content'
         });
@@ -77,7 +76,7 @@ app.post('/', async (req, res) => {
     } catch(error) {
         setJobStatus({
             db,
-            id: lastInsertedId,
+            uuid: uuid,
             status: 'failed',
             result: 'Failed to fetch AI response'
         });
@@ -86,7 +85,7 @@ app.post('/', async (req, res) => {
 
     setJobStatus({
         db,
-        id: lastInsertedId,
+        uuid: uuid,
         status: 'completed',
         result: aiResponse.response.text()
     });
@@ -95,25 +94,25 @@ app.post('/', async (req, res) => {
 });
 
 app.get('/', (req, res) => {
-    const id = req.query.id;
+    const uuid = req.query.uuid;
 
-    if(!id) {
-        res.status(400).send('Error: No id query param provided');
+    if(!uuid) {
+        res.status(400).send('Error: No uuid query param provided');
         return;
     }
 
-    db.get('SELECT id, link, result, req_status FROM jobs WHERE id = $id', {
-        $id: id
+    db.get('SELECT id, link, result, req_status FROM jobs WHERE uuid = $uuid', {
+        $uuid: uuid
     }, (err, row) => {
         if(err || !row) {
             // Error retrieving from DB
             res.status(400).send({
-                error: 'Failed to retrieve job from DB. Try checking if the provided ID is correct'
+                error: 'Failed to retrieve job from DB. Try checking if the provided UUID is correct'
             });
             return;
         }
         res.send({
-            id,
+            uuid,
             url: row.link,
             result: row.result,
             status: row.req_status
