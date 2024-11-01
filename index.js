@@ -63,7 +63,22 @@ app.post('/', async (req, res) => {
 });
 
 app.get('/', (req, res) => {
-    res.send('Initial');
+    const id = req.query.id;
+
+    if(!id) {
+        res.status(400).send('Error: No id query param provided');
+        return;
+    }
+
+    db.get('SELECT id, result, is_completed, is_error FROM jobs WHERE id = $id', {
+        $id: id
+    }, (err, row) => {
+        res.send({
+            id,
+            result: row.result,
+            status: 'completed'
+        });
+    });
 });
 
 app.listen(port, () => {
