@@ -41,6 +41,7 @@ app.post('/', async (req, res) => {
     await page.goto(url);
     const article = await page.waitForSelector('.article-content');
     const text = await article.evaluate(el => el.textContent);
+    page.close();
 
     let aiResponse;
     try {

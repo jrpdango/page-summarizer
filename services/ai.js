@@ -10,6 +10,5 @@ const model = ai.getGenerativeModel({
 });
 
 export const summarize = async (text) => {
-    throw new Error('test');
     return model.generateContent(`Summarize the following website: ${text}`);
 };
