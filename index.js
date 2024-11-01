@@ -14,8 +14,21 @@ const browser = await puppeteer.launch();
 
 app.post('/', async (req, res) => {
     const url = req.body.url;
+
+    try {
+        const urlObj = new URL(url);
+        if(urlObj.hostname !== 'www.lifewire.com') {
+            res.status(400).send('For the purposes of this demo, only Lifewire articles are supported.');
+            return;
+        }
+    } catch (error) {
+        res.status(400).send('Error: invalid URL');
+        return;
+    }
+    
     if(!url) {
         res.status(400).send('Error: POST body must have a "url" property.');
+        return;
     }
 
     let lastInsertedId;
