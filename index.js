@@ -16,11 +16,35 @@ const browser = await puppeteer.launch();
 app.post('/', async (req, res) => {
     const url = req.body.url;
     if(!url) {
+        // TODO: Create Job class
         createJob({
             db,
             res,
             status: 'failed',
             errorMessage: 'POST body must have a "url" property'
+        });
+        return;
+    }
+
+    try {
+        const urlObj = new URL(url);
+        if(urlObj.hostname !== 'www.lifewire.com') {
+            createJob({
+                db,
+                res,
+                url,
+                status: 'failed',
+                errorMessage: 'For the purposes of this demo, only Lifewire articles are supported.'
+            });
+            return;
+        }
+    } catch (error) {
+        createJob({
+            db,
+            res,
+            url,
+            status: 'failed',
+            errorMessage: 'Invalid URL'
         });
         return;
     }
@@ -31,17 +55,6 @@ app.post('/', async (req, res) => {
         url,
         status: 'pending'
     });
-
-    try {
-        const urlObj = new URL(url);
-        if(urlObj.hostname !== 'www.lifewire.com') {
-            res.status(400).send('For the purposes of this demo, only Lifewire articles are supported.');
-            return;
-        }
-    } catch (error) {
-        res.status(400).send('Error: invalid URL');
-        return;
-    }
     
     const page = await browser.newPage();
     await page.goto(url);
