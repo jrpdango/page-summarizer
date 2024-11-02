@@ -95,9 +95,7 @@ app.get('/', (req, res) => {
     const uuid = req.query.uuid;
 
     if(!uuid) {
-        res.status(400).send({
-            error: 'No uuid query param provided'
-        });
+        handleError({ message: 'No uuid query param provided', res });
         return;
     }
 
@@ -106,8 +104,9 @@ app.get('/', (req, res) => {
     }, (err, row) => {
         if(err || !row) {
             // Error retrieving from DB
-            res.status(400).send({
-                error: 'Failed to retrieve job from DB. Try checking if the provided UUID is correct'
+            handleError({
+                message: 'Failed to retrieve job from DB. Try checking if the provided UUID is correct',
+                res
             });
             return;
         }
