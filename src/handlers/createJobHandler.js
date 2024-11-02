@@ -1,5 +1,5 @@
 import { summarize } from '../services/ai.js';
-import { Job } from '../utils/job.js';
+import { Job } from '../models/job.js';
 import { statusType } from '../constants.js';
 import { handleError } from '../utils/handleError.js';
 import { scrapePage } from '../utils/scrapePage.js';
@@ -51,7 +51,7 @@ export const createJobHandler = async (req, res, db, browser) => {
         text = await scrapePage({ browser, url });
     } catch (error) {
         console.error(`Puppeteer error: ${error.message}`);
-        job.update({ 
+        job.updateFields({ 
             status: statusType.FAILED,
             errorMessage: 'Failed to retrieve text content'
         });
@@ -64,14 +64,14 @@ export const createJobHandler = async (req, res, db, browser) => {
 
     } catch(error) {
         console.error(`AI service error: ${error.message}`);
-        job.update({
+        job.updateFields({
             status: statusType.FAILED,
             errorMessage: 'Failed to fetch AI response'
         });
         return;
     }
 
-    job.update({
+    job.updateFields({
         status: statusType.COMPLETED,
         result: aiResponse.response.text()
     });
