@@ -15,20 +15,28 @@ const port = 3000;
 const db = new sqlite3.Database('db/data.db');
 const browser = await puppeteer.launch();
 
+const sendError = ({ message, res, job }) => {
+    const uuid = job.insertToDb({
+        status: statusType.FAILED,
+        errorMessage: message
+    });
+    res.status(400).send({
+        uuid,
+        error,
+        status: statusType.FAILED,
+    });
+    return;
+};
+
 app.post('/', async (req, res) => {
     const url = req.body.url;
     const job = new Job({ db, url });
 
     if(!url) {
-        const error = 'POST body must have a "url" property';
-        const uuid = job.insertToDb({
-            status: statusType.FAILED,
-            errorMessage: error
-        });
-        res.status(400).send({
-            uuid,
-            error,
-            status: statusType.FAILED,
+        sendError({
+            message: 'POST body must have a "url" property',
+            res,
+            job
         });
         return;
     }
@@ -36,28 +44,19 @@ app.post('/', async (req, res) => {
     try {
         const urlObj = new URL(url);
         if(urlObj.hostname !== 'www.lifewire.com') {
-            const error = 'For the purposes of this demo, only Lifewire articles are supported.';
-            const uuid = job.insertToDb({
-                status: statusType.FAILED,
-                errorMessage: error
-            });
-            res.status(400).send({
-                uuid,
-                error,
-                status: statusType.FAILED,
+            sendError({
+                message: 'For the purposes of this demo, only Lifewire articles are supported.',
+                res,
+                job
             });
             return;
+
         }
     } catch (e) {
-        const error = 'Invalid URL';
-        const uuid = job.insertToDb({
-            status: statusType.FAILED,
-            errorMessage: error
-        });
-        res.status(400).send({
-            uuid,
-            error,
-            status: statusType.FAILED,
+        sendError({
+            message: 'Invalid URL',
+            res,
+            job
         });
         return;
     }
