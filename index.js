@@ -49,6 +49,11 @@ app.post('/', async (req, res) => {
     }
 
     const lastInsertedUUID = job.insertToDb({ status: statusType.PENDING });
+    res.send({
+        uuid: job.uuid,
+        url,
+        status: statusType.PENDING
+    });
     
     const page = await browser.newPage();
     await page.goto(url);
@@ -57,11 +62,9 @@ app.post('/', async (req, res) => {
     try {
         article = await page.waitForSelector('.article-content');
     } catch(error) {
-        setJobStatus({
-            db,
-            uuid: lastInsertedUUID,
-            status: 'failed',
-            result: 'Failed to retrieve text content'
+        job.update({ 
+            status: statusType.FAILED,
+            errorMessage: 'Failed to retrieve text content'
         });
         page.close();
         return;

@@ -15,10 +15,11 @@ export class Job {
         return this.uuid;
     }
 
-    update({ status, result }) {
-        return this.db.run(`UPDATE jobs SET (result, req_status) = ($result, $status) WHERE uuid = $uuid`, {
+    update({ status, result, errorMessage }) {
+        return this.db.run(`UPDATE jobs SET (result, req_status, error_message) = ($result, $status, $errorMessage) WHERE uuid = $uuid`, {
             $result: result,
             $status: status,
+            $errorMessage: errorMessage,
             $uuid: this.uuid
         });
     }
