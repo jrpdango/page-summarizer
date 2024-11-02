@@ -6,6 +6,7 @@ import { summarize } from './services/ai.js';
 import { Job } from './utils/job.js';
 import { statusType } from './constants.js';
 import { handleError } from './utils/handleError.js';
+import { scrapePage } from './utils/scrapePage.js';
 
 const app = express();
 app.use(express.json());
@@ -56,25 +57,17 @@ app.post('/', async (req, res) => {
         status: statusType.PENDING
     });
     
-    const page = await browser.newPage();
-    await page.goto(url);
-
-    let article; 
+    let text;
     try {
-        // Lifewire uses this class on the article itself,
-        // so we can get that instead of the entire page's body
-        article = await page.waitForSelector('.article-content');
-    } catch(error) {
+        text = await scrapePage({ browser, url });
+    } catch (error) {
         console.error(`Puppeteer error: ${error.message}`);
         job.update({ 
             status: statusType.FAILED,
             errorMessage: 'Failed to retrieve text content'
         });
-        page.close();
         return;
     }
-    const text = await article.evaluate(el => el.textContent);
-    page.close();
 
     let aiResponse;
     try {
