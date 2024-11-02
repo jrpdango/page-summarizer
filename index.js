@@ -95,7 +95,9 @@ app.get('/', (req, res) => {
     const uuid = req.query.uuid;
 
     if(!uuid) {
-        res.status(400).send('Error: No uuid query param provided');
+        res.status(400).send({
+            error: 'No uuid query param provided'
+        });
         return;
     }
 
