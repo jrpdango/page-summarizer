@@ -65,6 +65,7 @@ app.post('/', async (req, res) => {
         // so we can get that instead of the entire page's body
         article = await page.waitForSelector('.article-content');
     } catch(error) {
+        console.error(`Puppeteer error: ${error.message}`);
         job.update({ 
             status: statusType.FAILED,
             errorMessage: 'Failed to retrieve text content'
@@ -80,6 +81,7 @@ app.post('/', async (req, res) => {
         aiResponse = await summarize(text);
 
     } catch(error) {
+        console.error(`AI service error: ${error.message}`);
         job.update({
             status: statusType.FAILED,
             errorMessage: 'Failed to fetch AI response'
