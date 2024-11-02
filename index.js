@@ -92,7 +92,7 @@ app.post('/', async (req, res) => {
         result: aiResponse.response.text()
     });
 
-    console.log('Job done');
+    console.log(`${new Date().toLocaleString()} - Job ${job.uuid} done`);
 });
 
 app.get('/', (req, res) => {
