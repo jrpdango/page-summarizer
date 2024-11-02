@@ -1,17 +1,18 @@
 import { getJobHandler } from "../handlers/getJobHandler";
 import { handleError } from "../utils/handleError";
 
-const mockRes = {
-    send: jest.fn()
-};
-const mockDB = {
-    get: jest.fn()
-};
 jest.mock('../utils/handleError', () => ({
     handleError: jest.fn(),
 }));
 
 describe('get job', () => {
+    const mockRes = {
+        send: jest.fn()
+    };
+    const mockDB = {
+        get: jest.fn()
+    };
+    
     it('should return job details without error message when job has no error', () => {
         const req = { query: { uuid: 'some-uuid' } };
         const job = {
