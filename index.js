@@ -3,7 +3,6 @@ import 'dotenv/config';
 import sqlite3 from 'sqlite3';
 import puppeteer from 'puppeteer';
 import { summarize } from './services/ai.js';
-import { setJobStatus } from './utils/setJobStatus.js';
 import { Job } from './utils/job.js';
 import { statusType } from './constants.js';
 import { handleError } from './utils/handleError.js';
@@ -48,7 +47,7 @@ app.post('/', async (req, res) => {
         return;
     }
 
-    const lastInsertedUUID = job.insertToDb({ status: statusType.PENDING });
+    job.insertToDb({ status: statusType.PENDING });
     res.send({
         uuid: job.uuid,
         url,
@@ -77,19 +76,15 @@ app.post('/', async (req, res) => {
         aiResponse = await summarize(text);
 
     } catch(error) {
-        setJobStatus({
-            db,
-            uuid: lastInsertedUUID,
-            status: 'failed',
-            result: 'Failed to fetch AI response'
+        job.update({
+            status: statusType.FAILED,
+            errorMessage: 'Failed to fetch AI response'
         });
         return;
     }
 
-    setJobStatus({
-        db,
-        uuid: lastInsertedUUID,
-        status: 'completed',
+    job.update({
+        status: statusType.COMPLETED,
         result: aiResponse.response.text()
     });
 
