@@ -40,9 +40,9 @@ app.post('/', async (req, res) => {
             return;
 
         }
-    } catch (e) {
+    } catch (error) {
         handleError({
-            message: 'Invalid URL',
+            message: error.message, // "Invalid URL"
             res,
             job
         });
