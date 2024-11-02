@@ -9,7 +9,7 @@ export const getJobHandler = (req, res, db) => {
         return;
     }
 
-    db.get('SELECT id, link, result, req_status, error_message FROM jobs WHERE uuid = $uuid', {
+    db.get('SELECT id, url, result, req_status, error_message FROM jobs WHERE uuid = $uuid', {
         $uuid: uuid
     }, (err, row) => {
         if(err || !row) {
@@ -23,7 +23,7 @@ export const getJobHandler = (req, res, db) => {
         if(row.error_message) {
             res.send({
                 uuid,
-                url: row.link,
+                url: row.url,
                 result: row.result,
                 status: row.req_status,
                 error: row.error_message
@@ -32,7 +32,7 @@ export const getJobHandler = (req, res, db) => {
         }
         res.send({
             uuid,
-            url: row.link,
+            url: row.url,
             result: row.result,
             status: row.req_status,
         });

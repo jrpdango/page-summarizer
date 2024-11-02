@@ -12,11 +12,11 @@ describe('get job', () => {
     const mockDB = {
         get: jest.fn()
     };
-    
+
     it('should return job details without error message when job has no error', () => {
         const req = { query: { uuid: 'some-uuid' } };
         const job = {
-          link: 'https://example.com',
+          url: 'https://example.com',
           result: 'some summary here',
           req_status: 'completed',
           error_message: null,
@@ -39,7 +39,7 @@ describe('get job', () => {
     it('should return job details with error message when job has error', () => {
         const req = { query: { uuid: 'some-uuid' } };
         const job = {
-          link: 'https://example.com',
+          url: 'https://example.com',
           result: null,
           req_status: 'failed',
           error_message: 'Some error',

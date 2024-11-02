@@ -6,7 +6,7 @@ export class Job {
     }
 
     insertToDb({ status, errorMessage }) {
-        this.db.run('INSERT INTO jobs (uuid, link, req_status, error_message) VALUES ($uuid, $url, $status, $errorMessage)', { 
+        this.db.run('INSERT INTO jobs (uuid, url, req_status, error_message) VALUES ($uuid, $url, $status, $errorMessage)', { 
             $uuid: this.uuid, 
             $url: this.url, 
             $status: status, 
