@@ -4,8 +4,9 @@
   "description": "POC backend for one.com application",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon index.js --exec 'npx eslint && node'",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "npx eslint"
   },
   "author": "",
   "license": "ISC",
