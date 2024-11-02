@@ -14,4 +14,12 @@ export class Job {
         });
         return this.uuid;
     }
+
+    update({ status, result }) {
+        return this.db.run(`UPDATE jobs SET (result, req_status) = ($result, $status) WHERE uuid = $uuid`, {
+            $result: result,
+            $status: status,
+            $uuid: this.uuid
+        });
+    }
 }
