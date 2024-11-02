@@ -15,7 +15,6 @@ describe('get job', () => {
     it('should return job details without error message when job has no error', () => {
         const req = { query: { uuid: 'some-uuid' } };
         const job = {
-          id: 1,
           link: 'https://example.com',
           result: 'some summary here',
           req_status: 'completed',
@@ -33,6 +32,28 @@ describe('get job', () => {
           url: 'https://example.com',
           result: 'some summary here',
           status: 'completed',
+        });
+    });
+
+    it('should return job details with error message when job has error', () => {
+        const req = { query: { uuid: 'some-uuid' } };
+        const job = {
+          link: 'https://example.com',
+          result: null,
+          req_status: 'failed',
+          error_message: 'Some error',
+        };
+    
+        mockDB.get.mockImplementationOnce((query, params, callback) => callback(null, job));
+    
+        getJobHandler(req, mockRes, mockDB);
+    
+        expect(mockRes.send).toHaveBeenCalledWith({
+          uuid: 'some-uuid',
+          url: 'https://example.com',
+          result: null,
+          status: 'failed',
+          error: 'Some error',
         });
     });
 
