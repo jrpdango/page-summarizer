@@ -36,22 +36,28 @@ app.post('/', async (req, res) => {
     try {
         const urlObj = new URL(url);
         if(urlObj.hostname !== 'www.lifewire.com') {
-            createJob({
-                db,
-                res,
-                url,
-                status: 'failed',
-                errorMessage: 'For the purposes of this demo, only Lifewire articles are supported.'
+            const error = 'For the purposes of this demo, only Lifewire articles are supported.';
+            const uuid = job.insertToDb({
+                status: statusType.FAILED,
+                errorMessage: error
+            });
+            res.status(400).send({
+                uuid,
+                error,
+                status: statusType.FAILED,
             });
             return;
         }
-    } catch (error) {
-        createJob({
-            db,
-            res,
-            url,
-            status: 'failed',
-            errorMessage: 'Invalid URL'
+    } catch (e) {
+        const error = 'Invalid URL';
+        const uuid = job.insertToDb({
+            status: statusType.FAILED,
+            errorMessage: error
+        });
+        res.status(400).send({
+            uuid,
+            error,
+            status: statusType.FAILED,
         });
         return;
     }
