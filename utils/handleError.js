@@ -1,6 +1,7 @@
 import { statusType } from '../constants.js';
 
 export const handleError = ({ message, res, job }) => {
+    console.error(`${new Date().toLocaleString()} - ${message}`);
     if(!job) {
         res.status(400).send({
             error: message,
