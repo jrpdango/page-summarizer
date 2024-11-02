@@ -4,9 +4,9 @@ import sqlite3 from 'sqlite3';
 import puppeteer from 'puppeteer';
 import { summarize } from './services/ai.js';
 import { setJobStatus } from './utils/setJobStatus.js';
-import { createJob } from './utils/createJob.js';
 import { Job } from './utils/job.js';
 import { statusType } from './constants.js';
+import { handleError } from './utils/handleError.js';
 
 const app = express();
 app.use(express.json());
@@ -15,25 +15,12 @@ const port = 3000;
 const db = new sqlite3.Database('db/data.db');
 const browser = await puppeteer.launch();
 
-const sendError = ({ message, res, job }) => {
-    const uuid = job.insertToDb({
-        status: statusType.FAILED,
-        errorMessage: message
-    });
-    res.status(400).send({
-        uuid,
-        error: message,
-        status: statusType.FAILED,
-    });
-    return;
-};
-
 app.post('/', async (req, res) => {
     const url = req.body.url;
     const job = new Job({ db, url });
 
     if(!url) {
-        sendError({
+        handleError({
             message: 'POST body must have a "url" property',
             res,
             job
@@ -44,7 +31,7 @@ app.post('/', async (req, res) => {
     try {
         const urlObj = new URL(url);
         if(urlObj.hostname !== 'www.lifewire.com') {
-            sendError({
+            handleError({
                 message: 'For the purposes of this demo, only Lifewire articles are supported.',
                 res,
                 job
@@ -53,7 +40,7 @@ app.post('/', async (req, res) => {
 
         }
     } catch (e) {
-        sendError({
+        handleError({
             message: 'Invalid URL',
             res,
             job

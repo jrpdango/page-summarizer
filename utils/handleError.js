@@ -1,3 +1,5 @@
+import { statusType } from '../constants.js';
+
 export const handleError = ({ message, res, job }) => {
     const uuid = job.insertToDb({
         status: statusType.FAILED,
