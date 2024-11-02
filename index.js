@@ -5,6 +5,7 @@ import puppeteer from 'puppeteer';
 import { summarize } from './services/ai.js';
 import { setJobStatus } from './utils/setJobStatus.js';
 import { createJob } from './utils/createJob.js';
+import { Job } from './utils/job.js';
 
 const app = express();
 app.use(express.json());
@@ -15,13 +16,16 @@ const browser = await puppeteer.launch();
 
 app.post('/', async (req, res) => {
     const url = req.body.url;
+    const job = new Job({ db, url });
+    
     if(!url) {
-        // TODO: Create Job class
-        createJob({
-            db,
-            res,
-            status: 'failed',
-            errorMessage: 'POST body must have a "url" property'
+        job.status = 'failed';
+        job.errorMessage = 'POST body must have a "url" property';
+        const uuid = job.insertToDb();
+        res.status(400).send({
+            uuid,
+            status: job.status,
+            error: job.errorMessage
         });
         return;
     }
