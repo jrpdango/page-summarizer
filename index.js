@@ -22,7 +22,7 @@ const sendError = ({ message, res, job }) => {
     });
     res.status(400).send({
         uuid,
-        error,
+        error: message,
         status: statusType.FAILED,
     });
     return;
@@ -61,12 +61,7 @@ app.post('/', async (req, res) => {
         return;
     }
 
-    const lastInsertedUUID = createJob({
-        db,
-        res,
-        url,
-        status: 'pending'
-    });
+    const lastInsertedUUID = job.insertToDb({ status: statusType.PENDING });
     
     const page = await browser.newPage();
     await page.goto(url);
