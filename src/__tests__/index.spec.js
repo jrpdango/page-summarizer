@@ -1,18 +1,23 @@
 import { getJobHandler } from "../handlers/getJobHandler";
+import { createJobHandler } from "../handlers/createJobHandler";
+import { statusType } from "../constants";
 import { handleError } from "../utils/handleError";
+import { scrapePage } from "../utils/scrapePage";
+import { summarize } from "../services/ai";
 
-jest.mock('../utils/handleError', () => ({
-    handleError: jest.fn(),
-}));
+jest.mock('../utils/handleError', () => ({ handleError: jest.fn() }));
+jest.mock('../utils/scrapePage.js', () => ({ scrapePage: jest.fn() }));
+jest.mock('../services/ai.js', () => ({ summarize: jest.fn() }));
+
+const mockRes = {
+    send: jest.fn()
+};
+const mockDB = {
+    get: jest.fn(),
+    run: jest.fn()
+};
 
 describe('get job', () => {
-    const mockRes = {
-        send: jest.fn()
-    };
-    const mockDB = {
-        get: jest.fn()
-    };
-
     it('should return job details without error message when job has no error', () => {
         const req = { query: { uuid: 'some-uuid' } };
         const job = {
@@ -85,5 +90,28 @@ describe('get job', () => {
           res: mockRes,
         });
         expect(mockRes.send).not.toHaveBeenCalled();
+    });
+});
+
+describe('create job', () => {
+    it('should summarize a Lifewire article', async () => {
+        const req = { body: { url: 'https://www.lifewire.com/some-article' } };
+        const browser = {};
+        const mockScraped = 'some scraped text';
+        const mockSummary = 'some summary text';
+
+        scrapePage.mockReturnValueOnce(mockScraped);
+        summarize.mockReturnValueOnce({ response: { text: () => mockSummary } });
+        mockDB.run.mockImplementationOnce((query, params) => 'some-uuid');
+
+        await createJobHandler(req, mockRes, mockDB, browser);
+
+        expect(mockDB.run).toHaveBeenCalled();
+        expect(mockRes.send).toHaveBeenCalledWith({
+            status: statusType.PENDING,
+            url: req.body.url,
+            uuid: expect.any(String)
+        });
+        expect(scrapePage).toHaveBeenCalledWith({ browser, url: req.body.url });
     });
 });
