@@ -20,13 +20,15 @@ app.post('/', async (req, res) => {
     const job = new Job({ db, url });
 
     if(!url) {
-        job.status = statusType.FAILED;
-        job.errorMessage = 'POST body must have a "url" property';
-        const uuid = job.insertToDb();
+        const error = 'POST body must have a "url" property';
+        const uuid = job.insertToDb({
+            status: statusType.FAILED,
+            errorMessage: error
+        });
         res.status(400).send({
             uuid,
+            error,
             status: statusType.FAILED,
-            error: job.errorMessage
         });
         return;
     }
