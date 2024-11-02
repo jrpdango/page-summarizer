@@ -18,6 +18,7 @@ app.post('/', async (req, res) => {
     const url = req.body.url;
     const job = new Job({ db, url });
 
+    // Check if url hasn't been provided
     if(!url) {
         handleError({
             message: 'POST body must have a "url" property',
@@ -27,6 +28,7 @@ app.post('/', async (req, res) => {
         return;
     }
 
+    // Check if url from Lifewire or is invalid
     try {
         const urlObj = new URL(url);
         if(urlObj.hostname !== 'www.lifewire.com') {
@@ -59,6 +61,8 @@ app.post('/', async (req, res) => {
 
     let article; 
     try {
+        // Lifewire uses this class on the article itself,
+        // so we can get that instead of the entire page's body
         article = await page.waitForSelector('.article-content');
     } catch(error) {
         job.update({ 
@@ -94,6 +98,7 @@ app.post('/', async (req, res) => {
 app.get('/', (req, res) => {
     const uuid = req.query.uuid;
 
+    // Check if UUID hasn't been provided
     if(!uuid) {
         handleError({ message: 'No uuid query param provided', res });
         return;
