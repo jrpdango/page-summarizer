@@ -52,7 +52,9 @@ export class JobController {
         });
         
         const text = await this.getText(job);
+        if(!text) return;
         const aiResponse = await this.getAiResponse(text, job);
+        if(!aiResponse) return;
     
         job.updateFields({
             status: statusType.COMPLETED,
@@ -71,7 +73,7 @@ export class JobController {
                 status: statusType.FAILED,
                 errorMessage: 'Failed to retrieve text content'
             });
-            return;
+            return null;
         }
         return text;
     }
@@ -87,7 +89,7 @@ export class JobController {
                 status: statusType.FAILED,
                 errorMessage: 'Failed to fetch AI response'
             });
-            return;
+            return null;
         }
         return aiResponse;
     }
