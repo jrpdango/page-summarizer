@@ -15,7 +15,7 @@ const mockDB = {
 };
 
 jest.mock('../utils/handleError', () => ({ 
-  handleError: jest.fn(({ message, res, job }) => {}) 
+  handleError: jest.fn(({ message, res, job }) => mockRes.send()) 
 }));
 jest.mock('../utils/scrapePage.js', () => ({ scrapePage: jest.fn() }));
 jest.mock('../services/ai.js', () => ({ summarize: jest.fn() }));
@@ -82,6 +82,13 @@ describe('get job', () => {
 
     it('should return error when no uuid is provided', () => {
         const req = { query: {} };
+        const mockSend = {
+          uuid: expect.any(String),
+          error: 'No uuid query param provided',
+          status: statusType.FAILED
+        };
+
+        handleError.mockImplementationOnce(() => mockRes.send(mockSend));
     
         getJobHandler(req, mockRes, mockDB);
     
@@ -89,16 +96,22 @@ describe('get job', () => {
           message: 'No uuid query param provided',
           res: mockRes,
         });
-        expect(mockRes.send).not.toHaveBeenCalled();
+        expect(mockRes.send).toHaveBeenCalledWith(mockSend);
     });
 
     it('should return error when DB retrieval fails', () => {
         const req = { query: { uuid: 'some-uuid' } };
         const error = new Error('Some error');
+        const mockSend = {
+          uuid: expect.any(String),
+          error: 'Failed to retrieve job from DB. Try checking if the provided UUID is correct',
+          status: statusType.FAILED
+        };
     
         mockDB.get.mockImplementationOnce((query, params, callback) => {
             callback(error, null);
         });
+        handleError.mockImplementationOnce(() => mockRes.send(mockSend));
     
         getJobHandler(req, mockRes, mockDB);
     
@@ -106,7 +119,7 @@ describe('get job', () => {
           message: 'Failed to retrieve job from DB. Try checking if the provided UUID is correct',
           res: mockRes,
         });
-        expect(mockRes.send).not.toHaveBeenCalled();
+        expect(mockRes.send).toHaveBeenCalledWith(mockSend);
     });
 });
 
