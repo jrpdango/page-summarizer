@@ -129,14 +129,13 @@ describe('create job', () => {
 
     it('should summarize a Lifewire article', async () => {
         const req = { body: { url: 'https://www.lifewire.com/some-article' } };
-        const browser = {};
         const mockScraped = 'some scraped text';
         const mockSummary = 'some summary text';
 
         scrapePage.mockReturnValueOnce(mockScraped);
         summarize.mockReturnValueOnce({ response: { text: () => mockSummary } });
 
-        await createJobHandler(req, mockRes, mockDB, browser);
+        await createJobHandler(req, mockRes, mockDB, mockBrowser);
 
         expect(Job).toHaveBeenCalledWith({ db: mockDB, url: req.body.url });
         expect(mockDB.run).toHaveBeenCalledWith('some-insert-query', { some: 'params' });
@@ -145,7 +144,7 @@ describe('create job', () => {
             url: req.body.url,
             uuid: expect.any(String)
         });
-        expect(scrapePage).toHaveBeenCalledWith({ browser, url: req.body.url });
+        expect(scrapePage).toHaveBeenCalledWith({ browser: mockBrowser, url: req.body.url });
         expect(summarize).toHaveBeenCalledWith(mockScraped);
         expect(mockDB.run).toHaveBeenCalledWith('some-update-query', { some: 'params' });
         expect(logSpy).toHaveBeenCalled();
@@ -153,7 +152,6 @@ describe('create job', () => {
 
     it('should return an error if no url is provided', async () => {
       const req = { body: {} };
-      const browser = {};
       const mockSend = {
         uuid: expect.any(String),
         error: 'POST body must have a "url" property',
@@ -162,7 +160,7 @@ describe('create job', () => {
 
       handleError.mockImplementationOnce(() => mockRes.send(mockSend));
 
-      await createJobHandler(req, mockRes, mockDB, browser);
+      await createJobHandler(req, mockRes, mockDB, mockBrowser);
 
       expect(Job).toHaveBeenCalledWith({ db: mockDB });
       expect(scrapePage).not.toHaveBeenCalled();
