@@ -55,6 +55,7 @@ Something to think about, however, is that any given website will not only have 
 ```bash
 $ sqlite3 data.db 
 ```
+- SQLite may rarely crash the app with the error: `SQLITE_READONLY: attempt to write a readonly database`. This may likely be caused by multiple processes accessing the db file at the same time (e.g. `sqlite` shell is active while the server is interacting with the database).
 ### How It Works
 This app has two endpoints: a POST to create a job, and a GET to retrieve info about that job. I created a handler class called `JobHandler` that has the methods to perform both tasks, `createJob` and  `getJob`. I also created a `Job` model that can interact with the database. Whilst each job has its own integer ID for a primary key, I opted to also add in a UUID to more easily identify jobs since getting the last inserted ID requires waiting for a callback from a recent query. 
 

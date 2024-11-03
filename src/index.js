@@ -20,12 +20,6 @@ CREATE TABLE IF NOT EXISTS jobs (
     error_message TEXT
 )
 `);
-  
-// Run this for better concurrency, e.g. if you encounter `SQLITE_READONLY: attempt to write a readonly database` error
-// db.run('PRAGMA journal_mode = WAL');
-
-// Default behavior, run this line if you want to revert from WAL mode
-// db.run('PRAGMA journal_mode = DELETE');
 
 const browser = await puppeteer.launch();
 const jobHandler = new JobHandler(db, browser);
