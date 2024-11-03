@@ -8,6 +8,7 @@ export const scrapePage = async ({ browser, url }) => {
         // so we can get that instead of the entire page's body
         article = await page.waitForSelector('.article-content');
     } catch(error) {
+        // Default timeout is 30s if it can't find anything
         page.close();
         throw error;
     }

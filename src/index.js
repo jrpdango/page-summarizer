@@ -20,7 +20,16 @@ CREATE TABLE IF NOT EXISTS jobs (
     error_message TEXT
 )
 `);
-db.run('PRAGMA journal_mode = WAL');
+
+/* 
+Optional, you can remove this line and remove data.db-shm and data.db-wal
+if you want to, but you may encounter more `SQLITE_READONLY: attempt to write a readonly database` errors
+*/  
+// db.run('PRAGMA journal_mode = WAL');
+
+// Default behavior, run this line if you want to revert from WAL mode
+// db.run('PRAGMA journal_mode = DELETE');
+
 const browser = await puppeteer.launch();
 const jobHandler = new JobHandler(db, browser);
 
