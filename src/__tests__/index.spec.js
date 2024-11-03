@@ -126,8 +126,8 @@ describe('get job', () => {
 });
 
 describe('create job', () => {
-  const logSpy = jest.spyOn(global.console, 'log');
-  const errorSpy = jest.spyOn(global.console, 'error');
+  const logSpy = jest.spyOn(global.console, 'log').mockImplementation((message) => {});
+  const errorSpy = jest.spyOn(global.console, 'error').mockImplementation((message) => {});
 
     it('should summarize a Lifewire article', async () => {
         const req = { body: { url: 'https://www.lifewire.com/some-article' } };
