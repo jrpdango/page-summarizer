@@ -4,18 +4,33 @@ import { statusType } from "../constants";
 import { handleError } from "../utils/handleError";
 import { scrapePage } from "../utils/scrapePage";
 import { summarize } from "../services/ai";
+import { Job } from "../models/job";
+
+const mockRes = {
+  send: jest.fn()
+};
+const mockDB = {
+  get: jest.fn(),
+  run: jest.fn()
+};
 
 jest.mock('../utils/handleError', () => ({ handleError: jest.fn() }));
 jest.mock('../utils/scrapePage.js', () => ({ scrapePage: jest.fn() }));
 jest.mock('../services/ai.js', () => ({ summarize: jest.fn() }));
-
-const mockRes = {
-    send: jest.fn()
-};
-const mockDB = {
-    get: jest.fn(),
-    run: jest.fn()
-};
+jest.mock('../models/job.js', () => ({ 
+  Job: jest.fn((db, url) => ({ 
+    uuid: 'some-uuid',
+    db: mockDB,
+    insertToDb: jest.fn((status, errorMessage) => { 
+      mockDB.run('some-insert-query', { some: 'params' });
+      return 'some-uuid';
+    }), 
+    updateFields: jest.fn((status, result, errorMessage) => {
+      mockDB.run('some-update-query', { some: 'params' });
+      return {};
+    }) 
+  })) 
+}));
 
 describe('get job', () => {
     it('should return job details without error message when job has no error', () => {
@@ -94,6 +109,8 @@ describe('get job', () => {
 });
 
 describe('create job', () => {
+  const logSpy = jest.spyOn(global.console, 'log');
+
     it('should summarize a Lifewire article', async () => {
         const req = { body: { url: 'https://www.lifewire.com/some-article' } };
         const browser = {};
@@ -102,11 +119,11 @@ describe('create job', () => {
 
         scrapePage.mockReturnValueOnce(mockScraped);
         summarize.mockReturnValueOnce({ response: { text: () => mockSummary } });
-        mockDB.run.mockImplementationOnce((query, params) => 'some-uuid');
 
         await createJobHandler(req, mockRes, mockDB, browser);
 
-        expect(mockDB.run).toHaveBeenCalled();
+        expect(Job).toHaveBeenCalledWith({ db: mockDB, url: req.body.url });
+        expect(mockDB.run).toHaveBeenCalledWith('some-insert-query', { some: 'params' });
         expect(mockRes.send).toHaveBeenCalledWith({
             status: statusType.PENDING,
             url: req.body.url,
@@ -114,5 +131,7 @@ describe('create job', () => {
         });
         expect(scrapePage).toHaveBeenCalledWith({ browser, url: req.body.url });
         expect(summarize).toHaveBeenCalledWith(mockScraped);
+        expect(mockDB.run).toHaveBeenCalledWith('some-update-query', { some: 'params' });
+        expect(logSpy).toHaveBeenCalled();
     });
 });
