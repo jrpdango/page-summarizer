@@ -196,4 +196,28 @@ describe('create job', () => {
       });
       expect(mockRes.send).toHaveBeenCalledWith(mockSend);
     });
+
+    it('should not accept invalid URLs', async () => {
+      const req = { body: { url: 'not-a-url' } };
+      const errorMessage = 'Invalid URL';
+      const mockSend = {
+        uuid: expect.any(String),
+        error: errorMessage,
+        status: statusType.FAILED
+      };
+
+      handleError.mockImplementationOnce(() => mockRes.send(mockSend));
+
+      await createJobHandler(req, mockRes, mockDB, mockBrowser);
+
+      expect(Job).toHaveBeenCalledWith({ db: mockDB, url: req.body.url });
+      expect(scrapePage).not.toHaveBeenCalled();
+      expect(summarize).not.toHaveBeenCalled();
+      expect(handleError).toHaveBeenCalledWith({ 
+        message: errorMessage,
+        res: mockRes,
+        job: expect.any(Object)
+      });
+      expect(mockRes.send).toHaveBeenCalledWith(mockSend);
+    });
 });
