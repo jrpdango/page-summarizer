@@ -4,7 +4,7 @@ import { statusType } from '../constants.js';
 import { handleError } from '../utils/handleError.js';
 import { scrapePage } from '../utils/scrapePage.js';
 
-export class JobController {
+export class JobHandler {
     constructor(db, browser) {
         this.db = db;
         this.browser = browser;

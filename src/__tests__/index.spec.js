@@ -3,7 +3,7 @@ import { handleError } from "../utils/handleError";
 import { scrapePage } from "../utils/scrapePage";
 import { summarize } from "../services/ai";
 import { Job } from "../models/job";
-import { JobController } from "../handlers/job.controller";
+import { JobHandler } from "../handlers/job.handler";
 
 const mockRes = {
   send: jest.fn()
@@ -13,7 +13,7 @@ const mockDB = {
   run: jest.fn()
 };
 const mockBrowser = {};
-const mockJobController = new JobController(mockDB, mockBrowser);
+const mockJobHandler = new JobHandler(mockDB, mockBrowser);
 
 jest.mock('../utils/handleError', () => ({ 
   handleError: jest.fn(({ message, res, job }) => mockRes.send()) 
@@ -50,7 +50,7 @@ describe('get job', () => {
             callback(null, job);
         });
         
-        mockJobController.getJob(req, mockRes, mockDB);
+        mockJobHandler.getJob(req, mockRes, mockDB);
     
         expect(mockRes.send).toHaveBeenCalledWith({
           uuid: 'some-uuid',
@@ -71,7 +71,7 @@ describe('get job', () => {
     
         mockDB.get.mockImplementationOnce((query, params, callback) => callback(null, job));
     
-        mockJobController.getJob(req, mockRes, mockDB);
+        mockJobHandler.getJob(req, mockRes, mockDB);
     
         expect(mockRes.send).toHaveBeenCalledWith({
           uuid: 'some-uuid',
@@ -92,7 +92,7 @@ describe('get job', () => {
 
         handleError.mockImplementationOnce(() => mockRes.send(mockSend));
     
-        mockJobController.getJob(req, mockRes, mockDB);
+        mockJobHandler.getJob(req, mockRes, mockDB);
     
         expect(handleError).toHaveBeenCalledWith({
           message: 'No uuid query param provided',
@@ -115,7 +115,7 @@ describe('get job', () => {
         });
         handleError.mockImplementationOnce(() => mockRes.send(mockSend));
     
-        mockJobController.getJob(req, mockRes, mockDB);
+        mockJobHandler.getJob(req, mockRes, mockDB);
     
         expect(handleError).toHaveBeenCalledWith({
           message: 'Failed to retrieve job from DB. Try checking if the provided UUID is correct',
@@ -137,7 +137,7 @@ describe('create job', () => {
         scrapePage.mockReturnValueOnce(mockScraped);
         summarize.mockReturnValueOnce({ response: { text: () => mockSummary } });
 
-        await mockJobController.createJob(req, mockRes);
+        await mockJobHandler.createJob(req, mockRes);
 
         expect(Job).toHaveBeenCalledWith({ db: mockDB, url: req.body.url });
         expect(mockDB.run).toHaveBeenCalledWith('some-insert-query', { some: 'params' });
@@ -162,7 +162,7 @@ describe('create job', () => {
 
       handleError.mockImplementationOnce(() => mockRes.send(mockSend));
 
-      await mockJobController.createJob(req, mockRes);
+      await mockJobHandler.createJob(req, mockRes);
 
       expect(Job).toHaveBeenCalledWith({ db: mockDB });
       expect(scrapePage).not.toHaveBeenCalled();
@@ -186,7 +186,7 @@ describe('create job', () => {
 
       handleError.mockImplementationOnce(() => mockRes.send(mockSend));
 
-      await mockJobController.createJob(req, mockRes);
+      await mockJobHandler.createJob(req, mockRes);
 
       expect(Job).toHaveBeenCalledWith({ db: mockDB, url: req.body.url });
       expect(scrapePage).not.toHaveBeenCalled();
@@ -210,7 +210,7 @@ describe('create job', () => {
 
       handleError.mockImplementationOnce(() => mockRes.send(mockSend));
 
-      await mockJobController.createJob(req, mockRes);
+      await mockJobHandler.createJob(req, mockRes);
 
       expect(Job).toHaveBeenCalledWith({ db: mockDB, url: req.body.url });
       expect(scrapePage).not.toHaveBeenCalled();
@@ -228,7 +228,7 @@ describe('create job', () => {
 
       scrapePage.mockRejectedValueOnce(new Error('Scraping Error'));
 
-      await mockJobController.createJob(req, mockRes);
+      await mockJobHandler.createJob(req, mockRes);
 
       expect(Job).toHaveBeenCalledWith({ db: mockDB, url: req.body.url });
       expect(scrapePage).toHaveBeenCalledWith({ browser: mockBrowser, url: req.body.url });
@@ -244,7 +244,7 @@ describe('create job', () => {
       scrapePage.mockReturnValueOnce(mockScraped);
       summarize.mockRejectedValueOnce(new Error('Scraping Error'));
 
-      await mockJobController.createJob(req, mockRes);
+      await mockJobHandler.createJob(req, mockRes);
 
       expect(Job).toHaveBeenCalledWith({ db: mockDB, url: req.body.url });
       expect(scrapePage).toHaveBeenCalledWith({ browser: mockBrowser, url: req.body.url });
