@@ -10,14 +10,14 @@ const port = 3000;
 
 const db = new sqlite3.Database('db/data.db');
 const browser = await puppeteer.launch();
-const jobController = new JobHandler(db, browser);
+const jobHandler = new JobHandler(db, browser);
 
 app.post('/', async (req, res) => {
-    await jobController.createJob(req, res);
+    await jobHandler.createJob(req, res);
 });
 
 app.get('/', (req, res) => {
-    jobController.getJob(req, res, db);
+    jobHandler.getJob(req, res, db);
 });
 
 app.listen(port, () => {
