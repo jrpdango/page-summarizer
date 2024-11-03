@@ -235,4 +235,20 @@ describe('create job', () => {
       expect(mockDB.run).toHaveBeenCalledWith('some-update-query', { some: 'params' });
       expect(errorSpy).toHaveBeenCalled();
     });
+
+    it('should respond with an error if AI fails to respond', async () => {
+      const req = { body: { url: 'https://www.lifewire.com/some-article' } };
+      const mockScraped = 'some scraped text';
+
+      scrapePage.mockReturnValueOnce(mockScraped);
+      summarize.mockRejectedValueOnce(new Error('Scraping Error'));
+
+      await createJobHandler(req, mockRes, mockDB, mockBrowser);
+
+      expect(Job).toHaveBeenCalledWith({ db: mockDB, url: req.body.url });
+      expect(scrapePage).toHaveBeenCalledWith({ browser: mockBrowser, url: req.body.url });
+      expect(summarize).toHaveBeenCalledWith(mockScraped);
+      expect(errorSpy).toHaveBeenCalled();
+      expect(mockDB.run).toHaveBeenCalledWith('some-update-query', { some: 'params' });
+    });
 });
