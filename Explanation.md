@@ -1,3 +1,7 @@
+# Preface
+
+Before we begin, I want to preface this by saying that all of the text below is written by me -- **none of it is AI generated.**
+
 # The Problem
 
 Sometimes we need to read some information from a website but don't necessarily want to read it all from top to bottom. We want to be able to feed text to a program and have it summarize things for us, so it's easier and faster to get the main points.
