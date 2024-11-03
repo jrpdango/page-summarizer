@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS jobs (
     error_message TEXT
 )
 `);
+db.run('PRAGMA journal_mode = WAL');
 const browser = await puppeteer.launch();
 const jobHandler = new JobHandler(db, browser);
 
