@@ -1,16 +1,16 @@
-# Preface
+## Preface
 
 Before we begin, I want to preface this by saying that all of the text below is written by me -- **none of it is AI generated.**
 
-# The Problem
+## The Problem
 
 Sometimes we need to read some information from a website but don't necessarily want to read it all from top to bottom. We want to be able to feed text to a program and have it summarize things for us, so it's easier and faster to get the main points.
 
-# A Possible Solution
+## A Possible Solution
 
 The program in this repository is a proof-of-concept solution for the problem above. It is designed to receive a URL, retrieve the text content, have it summarized by AI, and display back the output to the user. It stores all results and errors in a database that users can reference through the available API.
 
-# Technical Specs
+## Technical Specs
 
 This program was built with Node.js and JavaScript. The following is a short list of other technologies used and why they were chosen:
 
@@ -23,7 +23,7 @@ This program was built with Node.js and JavaScript. The following is a short lis
 
 The GitHub repository automatically runs the linter and tests when pushing to the `main` branch.
 
-# Limitations
+## Limitations
 
 For the purposes of this demo, the application is limited to reading [Lifewire](https://www.lifewire.com/) articles to keep the scope simple. 
 
@@ -41,7 +41,7 @@ That said, If we really wanted to make the AI summarize *any* given URL, we can 
 
 Something to think about, however, is that any given website will not only have a variable amount of text in its `<body>`, it will also vary in the actual structure and content. Thus, if we'd ever want to expand this program to accept all URLs, it'd have to be able to handle possibly thousands of lines of HTML, cleaning it up, managing API rate limits, etc. 
 
-# Usage
+## Usage
 
 ### Prerequisites
 - A `.env` file with an `API_KEY` entry for a Gemini API key.
@@ -63,7 +63,7 @@ When a valid POST is made, `createJob` inserts a pending job into the database a
 A valid GET request can be made any time to check the status and result of an existing job. If a job failed, it will also show an error message.
 
 Both methods have error checking and utilize the `handleError` function to send responses and log when they occur. Error messages are also saved to the database, and the actual errors are logged to the console. If needed, the storing of actual errors can also be implemented in the future.
-# Other Possible Improvements
+## Other Possible Improvements
 
 Of course, this list is not going to be exhaustive, but there are some things I'd want to do if this were to become a large-scale application:
 ### Application
