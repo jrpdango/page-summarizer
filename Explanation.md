@@ -21,6 +21,8 @@ This program was built with Node.js and JavaScript. The following is a short lis
 - I used [**Jest**](https://jestjs.io/) to create tests. It's used in many different JS frameworks so you can learn it to use in other projects. Plus, it doesn't need much config to get up and running.
 - Lastly, [**ESLint**](https://eslint.org/) is the code linter used for syntax checking and issue catching.
 
+The GitHub repository automatically runs the linter and tests when pushing to the `main` branch.
+
 # Limitations
 
 For the purposes of this demo, the application is limited to reading [Lifewire](https://www.lifewire.com/) articles to keep the scope simple. 
