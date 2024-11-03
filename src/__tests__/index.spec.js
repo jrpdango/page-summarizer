@@ -1,10 +1,10 @@
 import { getJobHandler } from "../handlers/getJobHandler";
-import { createJobHandler } from "../handlers/createJobHandler";
 import { statusType } from "../constants";
 import { handleError } from "../utils/handleError";
 import { scrapePage } from "../utils/scrapePage";
 import { summarize } from "../services/ai";
 import { Job } from "../models/job";
+import { JobController } from "../handlers/job.controller";
 
 const mockRes = {
   send: jest.fn()
@@ -14,6 +14,7 @@ const mockDB = {
   run: jest.fn()
 };
 const mockBrowser = {};
+const mockJobController = new JobController(mockDB, mockBrowser);
 
 jest.mock('../utils/handleError', () => ({ 
   handleError: jest.fn(({ message, res, job }) => mockRes.send()) 
@@ -21,9 +22,10 @@ jest.mock('../utils/handleError', () => ({
 jest.mock('../utils/scrapePage.js', () => ({ scrapePage: jest.fn() }));
 jest.mock('../services/ai.js', () => ({ summarize: jest.fn() }));
 jest.mock('../models/job.js', () => ({ 
-  Job: jest.fn((db, url) => ({ 
+  Job: jest.fn(({db, url}) => ({ 
     uuid: 'some-uuid',
-    db: mockDB,
+    db,
+    url,
     insertToDb: jest.fn((status, errorMessage) => { 
       mockDB.run('some-insert-query', { some: 'params' });
       return 'some-uuid';
@@ -136,7 +138,7 @@ describe('create job', () => {
         scrapePage.mockReturnValueOnce(mockScraped);
         summarize.mockReturnValueOnce({ response: { text: () => mockSummary } });
 
-        await createJobHandler(req, mockRes, mockDB, mockBrowser);
+        await mockJobController.createJob(req, mockRes);
 
         expect(Job).toHaveBeenCalledWith({ db: mockDB, url: req.body.url });
         expect(mockDB.run).toHaveBeenCalledWith('some-insert-query', { some: 'params' });
@@ -161,7 +163,7 @@ describe('create job', () => {
 
       handleError.mockImplementationOnce(() => mockRes.send(mockSend));
 
-      await createJobHandler(req, mockRes, mockDB, mockBrowser);
+      await mockJobController.createJob(req, mockRes);
 
       expect(Job).toHaveBeenCalledWith({ db: mockDB });
       expect(scrapePage).not.toHaveBeenCalled();
@@ -185,7 +187,7 @@ describe('create job', () => {
 
       handleError.mockImplementationOnce(() => mockRes.send(mockSend));
 
-      await createJobHandler(req, mockRes, mockDB, mockBrowser);
+      await mockJobController.createJob(req, mockRes);
 
       expect(Job).toHaveBeenCalledWith({ db: mockDB, url: req.body.url });
       expect(scrapePage).not.toHaveBeenCalled();
@@ -209,7 +211,7 @@ describe('create job', () => {
 
       handleError.mockImplementationOnce(() => mockRes.send(mockSend));
 
-      await createJobHandler(req, mockRes, mockDB, mockBrowser);
+      await mockJobController.createJob(req, mockRes);
 
       expect(Job).toHaveBeenCalledWith({ db: mockDB, url: req.body.url });
       expect(scrapePage).not.toHaveBeenCalled();
@@ -227,7 +229,7 @@ describe('create job', () => {
 
       scrapePage.mockRejectedValueOnce(new Error('Scraping Error'));
 
-      await createJobHandler(req, mockRes, mockDB, mockBrowser);
+      await mockJobController.createJob(req, mockRes);
 
       expect(Job).toHaveBeenCalledWith({ db: mockDB, url: req.body.url });
       expect(scrapePage).toHaveBeenCalledWith({ browser: mockBrowser, url: req.body.url });
@@ -243,7 +245,7 @@ describe('create job', () => {
       scrapePage.mockReturnValueOnce(mockScraped);
       summarize.mockRejectedValueOnce(new Error('Scraping Error'));
 
-      await createJobHandler(req, mockRes, mockDB, mockBrowser);
+      await mockJobController.createJob(req, mockRes);
 
       expect(Job).toHaveBeenCalledWith({ db: mockDB, url: req.body.url });
       expect(scrapePage).toHaveBeenCalledWith({ browser: mockBrowser, url: req.body.url });
