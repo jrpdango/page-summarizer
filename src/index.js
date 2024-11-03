@@ -20,11 +20,8 @@ CREATE TABLE IF NOT EXISTS jobs (
     error_message TEXT
 )
 `);
-
-/* 
-Optional, you can remove this line and remove data.db-shm and data.db-wal
-if you want to, but you may encounter more `SQLITE_READONLY: attempt to write a readonly database` errors
-*/  
+  
+// Run this for better concurrency, e.g. if you encounter `SQLITE_READONLY: attempt to write a readonly database` error
 // db.run('PRAGMA journal_mode = WAL');
 
 // Default behavior, run this line if you want to revert from WAL mode
