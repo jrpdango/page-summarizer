@@ -37,7 +37,7 @@ jest.mock('../models/job.js', () => ({
 }));
 
 describe('get job', () => {
-    it('should return job details without error message when job has no error', () => {
+    it('should respond with job details without error message when job has no error', () => {
         const req = { query: { uuid: 'some-uuid' } };
         const job = {
           url: 'https://example.com',
@@ -60,7 +60,7 @@ describe('get job', () => {
         });
     });
 
-    it('should return job details with error message when job has error', () => {
+    it('should respond with job details with error message when job has error', () => {
         const req = { query: { uuid: 'some-uuid' } };
         const job = {
           url: 'https://example.com',
@@ -82,7 +82,7 @@ describe('get job', () => {
         });
     });
 
-    it('should return error when no uuid is provided', () => {
+    it('should respond with error when no uuid is provided', () => {
         const req = { query: {} };
         const mockSend = {
           uuid: expect.any(String),
@@ -101,7 +101,7 @@ describe('get job', () => {
         expect(mockRes.send).toHaveBeenCalledWith(mockSend);
     });
 
-    it('should return error when DB retrieval fails', () => {
+    it('should respond with error when DB retrieval fails', () => {
         const req = { query: { uuid: 'some-uuid' } };
         const error = new Error('Some error');
         const mockSend = {
@@ -152,7 +152,7 @@ describe('create job', () => {
         expect(logSpy).toHaveBeenCalled();
     });
 
-    it('should return an error if no url is provided', async () => {
+    it('should respond with an error if no url is provided', async () => {
       const req = { body: {} };
       const mockSend = {
         uuid: expect.any(String),
