@@ -14,7 +14,9 @@ const mockDB = {
   run: jest.fn()
 };
 
-jest.mock('../utils/handleError', () => ({ handleError: jest.fn() }));
+jest.mock('../utils/handleError', () => ({ 
+  handleError: jest.fn(({ message, res, job }) => {}) 
+}));
 jest.mock('../utils/scrapePage.js', () => ({ scrapePage: jest.fn() }));
 jest.mock('../services/ai.js', () => ({ summarize: jest.fn() }));
 jest.mock('../models/job.js', () => ({ 
@@ -133,5 +135,29 @@ describe('create job', () => {
         expect(summarize).toHaveBeenCalledWith(mockScraped);
         expect(mockDB.run).toHaveBeenCalledWith('some-update-query', { some: 'params' });
         expect(logSpy).toHaveBeenCalled();
+    });
+
+    it('should return an error if no url is provided', async () => {
+      const req = { body: {} };
+      const browser = {};
+      const mockSend = {
+        uuid: expect.any(String),
+        error: 'POST body must have a "url" property',
+        status: statusType.FAILED
+      };
+
+      handleError.mockImplementationOnce(() => mockRes.send(mockSend));
+
+      await createJobHandler(req, mockRes, mockDB, browser);
+
+      expect(Job).toHaveBeenCalledWith({ db: mockDB });
+      expect(scrapePage).not.toHaveBeenCalled();
+      expect(summarize).not.toHaveBeenCalled();
+      expect(handleError).toHaveBeenCalledWith({ 
+          message: 'POST body must have a "url" property',
+          res: mockRes,
+          job: expect.any(Object)
+      });
+      expect(mockRes.send).toHaveBeenCalledWith(mockSend);
     });
 });
