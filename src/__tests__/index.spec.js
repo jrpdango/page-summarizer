@@ -1,4 +1,3 @@
-import { getJobHandler } from "../handlers/getJobHandler";
 import { statusType } from "../constants";
 import { handleError } from "../utils/handleError";
 import { scrapePage } from "../utils/scrapePage";
@@ -51,7 +50,7 @@ describe('get job', () => {
             callback(null, job);
         });
         
-        getJobHandler(req, mockRes, mockDB);
+        mockJobController.getJob(req, mockRes, mockDB);
     
         expect(mockRes.send).toHaveBeenCalledWith({
           uuid: 'some-uuid',
@@ -72,7 +71,7 @@ describe('get job', () => {
     
         mockDB.get.mockImplementationOnce((query, params, callback) => callback(null, job));
     
-        getJobHandler(req, mockRes, mockDB);
+        mockJobController.getJob(req, mockRes, mockDB);
     
         expect(mockRes.send).toHaveBeenCalledWith({
           uuid: 'some-uuid',
@@ -93,7 +92,7 @@ describe('get job', () => {
 
         handleError.mockImplementationOnce(() => mockRes.send(mockSend));
     
-        getJobHandler(req, mockRes, mockDB);
+        mockJobController.getJob(req, mockRes, mockDB);
     
         expect(handleError).toHaveBeenCalledWith({
           message: 'No uuid query param provided',
@@ -116,7 +115,7 @@ describe('get job', () => {
         });
         handleError.mockImplementationOnce(() => mockRes.send(mockSend));
     
-        getJobHandler(req, mockRes, mockDB);
+        mockJobController.getJob(req, mockRes, mockDB);
     
         expect(handleError).toHaveBeenCalledWith({
           message: 'Failed to retrieve job from DB. Try checking if the provided UUID is correct',

@@ -10,6 +10,45 @@ export class JobController {
         this.browser = browser;
     }
 
+    getJob(req, res) {
+        const uuid = req.query.uuid;
+    
+        // Check if UUID hasn't been provided
+        if(!uuid) {
+            handleError({ message: 'No uuid query param provided', res });
+            return;
+        }
+    
+        this.db.get('SELECT id, url, result, req_status, error_message FROM jobs WHERE uuid = $uuid', {
+            $uuid: uuid
+        }, (err, row) => {
+            if(err || !row) {
+                // Error retrieving from DB
+                handleError({
+                    message: 'Failed to retrieve job from DB. Try checking if the provided UUID is correct',
+                    res
+                });
+                return;
+            }
+            if(row.error_message) {
+                res.send({
+                    uuid,
+                    url: row.url,
+                    result: row.result,
+                    status: row.req_status,
+                    error: row.error_message
+                });
+                return;
+            }
+            res.send({
+                uuid,
+                url: row.url,
+                result: row.result,
+                status: row.req_status,
+            });
+        });
+    }
+
     async createJob(req, res) {
         const url = req.body.url;
         const job = new Job({ db: this.db, url });

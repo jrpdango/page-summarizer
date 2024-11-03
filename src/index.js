@@ -2,7 +2,6 @@ import express from 'express';
 import 'dotenv/config';
 import sqlite3 from 'sqlite3';
 import puppeteer from 'puppeteer';
-import { getJobHandler } from './handlers/getJobHandler.js';
 import { JobController } from './handlers/job.controller.js';
 
 const app = express();
@@ -18,7 +17,7 @@ app.post('/', async (req, res) => {
 });
 
 app.get('/', (req, res) => {
-    getJobHandler(req, res, db);
+    jobController.getJob(req, res, db);
 });
 
 app.listen(port, () => {
