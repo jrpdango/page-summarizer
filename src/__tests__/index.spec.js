@@ -126,6 +126,7 @@ describe('get job', () => {
 
 describe('create job', () => {
   const logSpy = jest.spyOn(global.console, 'log');
+  const errorSpy = jest.spyOn(global.console, 'error');
 
     it('should summarize a Lifewire article', async () => {
         const req = { body: { url: 'https://www.lifewire.com/some-article' } };
@@ -219,5 +220,19 @@ describe('create job', () => {
         job: expect.any(Object)
       });
       expect(mockRes.send).toHaveBeenCalledWith(mockSend);
+    });
+
+    it('should respond with an error if Pupeteer fails to scrape', async () => {
+      const req = { body: { url: 'https://www.lifewire.com/some-article' } };
+
+      scrapePage.mockRejectedValueOnce(new Error('Scraping Error'));
+
+      await createJobHandler(req, mockRes, mockDB, mockBrowser);
+
+      expect(Job).toHaveBeenCalledWith({ db: mockDB, url: req.body.url });
+      expect(scrapePage).toHaveBeenCalledWith({ browser: mockBrowser, url: req.body.url });
+      expect(summarize).not.toHaveBeenCalled();
+      expect(mockDB.run).toHaveBeenCalledWith('some-update-query', { some: 'params' });
+      expect(errorSpy).toHaveBeenCalled();
     });
 });
