@@ -13,6 +13,7 @@ const mockDB = {
   get: jest.fn(),
   run: jest.fn()
 };
+const mockBrowser = {};
 
 jest.mock('../utils/handleError', () => ({ 
   handleError: jest.fn(({ message, res, job }) => mockRes.send()) 
@@ -170,6 +171,30 @@ describe('create job', () => {
           message: 'POST body must have a "url" property',
           res: mockRes,
           job: expect.any(Object)
+      });
+      expect(mockRes.send).toHaveBeenCalledWith(mockSend);
+    });
+
+    it('should not accept non-Lifewire URLs', async () => {
+      const req = { body: { url: 'https://www.random-site.xyz' } };
+      const errorMessage = 'For the purposes of this demo, only Lifewire articles are supported.';
+      const mockSend = {
+        uuid: expect.any(String),
+        error: errorMessage,
+        status: statusType.FAILED
+      };
+
+      handleError.mockImplementationOnce(() => mockRes.send(mockSend));
+
+      await createJobHandler(req, mockRes, mockDB, mockBrowser);
+
+      expect(Job).toHaveBeenCalledWith({ db: mockDB, url: req.body.url });
+      expect(scrapePage).not.toHaveBeenCalled();
+      expect(summarize).not.toHaveBeenCalled();
+      expect(handleError).toHaveBeenCalledWith({ 
+        message: errorMessage,
+        res: mockRes,
+        job: expect.any(Object)
       });
       expect(mockRes.send).toHaveBeenCalledWith(mockSend);
     });
