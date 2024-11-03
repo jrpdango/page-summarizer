@@ -113,5 +113,6 @@ describe('create job', () => {
             uuid: expect.any(String)
         });
         expect(scrapePage).toHaveBeenCalledWith({ browser, url: req.body.url });
+        expect(summarize).toHaveBeenCalledWith(mockScraped);
     });
 });
