@@ -9,6 +9,17 @@ app.use(express.json());
 const port = 3000;
 
 const db = new sqlite3.Database('db/data.db');
+db.run(`
+CREATE TABLE IF NOT EXISTS jobs (
+    id INTEGER PRIMARY KEY,
+    uuid TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    url TEXT,
+    result TEXT,
+    req_status TEXT,
+    error_message TEXT
+)
+`);
 const browser = await puppeteer.launch();
 const jobHandler = new JobHandler(db, browser);
 
