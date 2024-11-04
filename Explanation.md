@@ -53,8 +53,8 @@ API_KEY=YOUR_GEMINI_KEY_HERE
 - Don't forget to run `npm install` to install the project dependencies.
 ### Scripts
 - `npm run dev` - run development server
-- `npm test` - run tests
-- `npm lint` - run linter 
+- `npm run test` - run tests
+- `npm run lint` - run linter 
 ### Other Notes
 - To read the database outside the application, you need `sqlite3` installed on your system. Assuming you're in the `db/` directory, for Linux, the command to open the `sqlite` shell is as follows:
 ```bash
