@@ -124,4 +124,4 @@ Of course, this list is not going to be exhaustive, but there are some things I'
 
 ### Deployment
 
-- If deploying using NGINX, that can also be used as a load balancer.
+- If deploying using [NGINX](https://nginx.org/en/), that can also be used as a load balancer.
