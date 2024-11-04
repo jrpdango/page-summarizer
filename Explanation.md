@@ -44,7 +44,7 @@ Something to think about, however, is that any given website will not only have 
 ## Usage
 
 ### Prerequisites
-- A `.env` file with an `API_KEY` entry for a Gemini API key. For example:
+- A `.env` file in the project root directory with an `API_KEY` entry for a Gemini API key. For example:
 ```
 # .env
 API_KEY=YOUR_GEMINI_KEY_HERE
