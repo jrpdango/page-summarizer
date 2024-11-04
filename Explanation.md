@@ -44,7 +44,11 @@ Something to think about, however, is that any given website will not only have 
 ## Usage
 
 ### Prerequisites
-- A `.env` file with an `API_KEY` entry for a Gemini API key.
+- A `.env` file with an `API_KEY` entry for a Gemini API key. For example:
+```
+# .env
+API_KEY=YOUR_GEMINI_KEY_HERE
+```
 - If you want to manually create the `jobs` table in `db/data.db`, a `.sql` file is provided. Otherwise, the app will automatically create it for you. 
 - Don't forget to run `npm install` to install the project dependencies.
 ### Scripts
