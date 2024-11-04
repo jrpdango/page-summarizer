@@ -109,11 +109,13 @@ Both methods have error checking and utilize the `handleError` function to send 
 ## Other Possible Improvements
 
 Of course, this list is not going to be exhaustive, but there are some things I'd want to do if this were to become a large-scale application:
+
 ### Application
 
 - As mentioned in an earlier section, to be able to handle all URLs instead of just Lifewire articles, we'll have to parse the `<body>` of a given site. It's important to get an AI plan with better rate limits and tokens per request. We can try to reduce the amount of text passed to the AI by removing elements from the body that aren't text, like `<img>`. 
 - Replace SQLite with a dedicated database server like PostgreSQL or MongoDB, set up for concurrency. This is also important because the current SQLite implementation might allow SQL injection attacks.
 - Clustering can allow scaling by utilizing multiple worker processes to handle loads.
+- Create a caching system with something like [Redis](https://redis.io/). This is useful for jobs that are commonly called for in the GET endpoint, so the server doesn't need to get the info from the database over and over again.
 
 ### Development
 
