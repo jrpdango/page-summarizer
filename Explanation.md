@@ -72,9 +72,9 @@ When a valid POST is made, `createJob` inserts a pending job into the database a
 #### Example response:
 ```json
 {
-	"uuid":"c4ab9318-0220-421f-b04a-213a68f58c33",
-	"url":"https://www.lifewire.com/google-maps-gemini-ai-enhancements-8737295",
-	"status":"pending"
+  "uuid":"c4ab9318-0220-421f-b04a-213a68f58c33",
+  "url":"https://www.lifewire.com/google-maps-gemini-ai-enhancements-8737295",
+  "status":"pending"
 }
 ```
 A valid GET request can be made any time to check the status and result of an existing job. If a job failed, it will also show an error message.
@@ -100,7 +100,7 @@ Both methods have error checking and utilize the `handleError` function to send 
 ```json
 {
   "uuid": "583d6345-2115-4097-8584-4a27dbfbb6d6",
-  "url": "https://www.lifewire.com/google-maps-gemini-ai-enhancements-8737295a",
+  "url": "https://www.lifewire.com/not-a-real-article",
   "result": null,
   "status": "failed",
   "error": "Failed to retrieve text content"
