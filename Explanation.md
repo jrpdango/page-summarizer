@@ -62,9 +62,50 @@ This app has two endpoints: a POST to create a job, and a GET to retrieve info a
 
 When a valid POST is made, `createJob` inserts a pending job into the database and immediately responds to the request. It then scrapes the desired text using the `scrapePage` function and passes it to the AI with `summarize`. The job created earlier is then updated in the database with the result and then logged. We can create a separate method for updating the pending job if more code separation is needed, but I decided to leave it be since it's only a few lines long.  
 
+#### Example POST body:
+```json
+{
+  "url": "https://www.lifewire.com/google-maps-gemini-ai-enhancements-8737295"
+}
+```
+
+#### Example response:
+```json
+{
+	"uuid":"c4ab9318-0220-421f-b04a-213a68f58c33",
+	"url":"https://www.lifewire.com/google-maps-gemini-ai-enhancements-8737295",
+	"status":"pending"
+}
+```
 A valid GET request can be made any time to check the status and result of an existing job. If a job failed, it will also show an error message.
 
+#### Example GET url:
+```
+http://127.0.0.1:3000/?uuid=2251d971-12ec-4e91-a522-a25062646c6f
+```
+
+#### Example response:
+```json
+{
+  "uuid": "2251d971-12ec-4e91-a522-a25062646c6f",
+  "url": "https://www.lifewire.com/google-maps-gemini-ai-enhancements-8737295",
+  "result": "Google Maps is integrating Gemini AI to enhance its capabilities, making it more helpful for planning outings and adventures. Users can now ask Maps for \"inspiration\" by providing a few parameters, and the app will suggest \"thematically curated\" locations based on real user reviews and information.  Gemini's suggestions are fact-checked for accuracy, and users can interact with them by making reservations, getting directions, and discovering additional stops along the route.  New features include route navigation assistance, parking information, weather disruptions, and more. These updates are being rolled out gradually, starting today, October 31st. \n",
+  "status": "completed"
+}
+```
+
 Both methods have error checking and utilize the `handleError` function to send responses and log when they occur. Error messages are also saved to the database, and the actual errors are logged to the console. If needed, the storing of actual errors can also be implemented in the future.
+
+#### Example failed response:
+```json
+{
+  "uuid": "583d6345-2115-4097-8584-4a27dbfbb6d6",
+  "url": "https://www.lifewire.com/google-maps-gemini-ai-enhancements-8737295a",
+  "result": null,
+  "status": "failed",
+  "error": "Failed to retrieve text content"
+}
+```
 ## Other Possible Improvements
 
 Of course, this list is not going to be exhaustive, but there are some things I'd want to do if this were to become a large-scale application:
