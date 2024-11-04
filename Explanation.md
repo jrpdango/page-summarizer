@@ -25,7 +25,7 @@ The GitHub repository automatically runs the linter and tests when pushing to th
 
 ## Limitations
 
-For the purposes of this demo, the application is limited to reading [Lifewire](https://www.lifewire.com/) articles to keep the scope simple. 
+For the purposes of this demo, the application is limited to reading [Lifewire](https://www.lifewire.com/) articles to keep the scope simple. Their articles have URLs formatted like `https://www.lifewire.com/some-slug-1111111`.
 
 I chose Lifewire because their articles have consistent structuring, usually containing something like this:
 
