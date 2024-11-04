@@ -12,7 +12,7 @@ The program in this repository is a proof-of-concept solution for the problem ab
 
 ## Technical Specs
 
-This program was built with Node.js and JavaScript. The following is a short list of other technologies used and why they were chosen:
+This app was built with Node.js and JavaScript. The following is a short list of other technologies used and why they were chosen:
 
 - I chose to use [**Express**](https://expressjs.com/) as the web framework since this is a small app. It's relatively straightforward to set up, and something like [**NestJS**](https://nestjs.com/) would've been a bit overkill for what I needed to do. 
 - My database of choice is [**SQLite**](https://www.sqlite.org/). It's lightweight and easy to use, even allowing an existing database file to be included in the `db/` directory of this repository, for reference.
@@ -27,7 +27,7 @@ The GitHub repository automatically runs the linter and tests when pushing to th
 
 For the purposes of this demo, the application is limited to reading [Lifewire](https://www.lifewire.com/) articles to keep the scope simple. Their articles have URLs formatted like `https://www.lifewire.com/some-slug-1111111`.
 
-I chose Lifewire because their articles have consistent structuring, usually containing something like this:
+I chose Lifewire because these articles have consistent structuring, usually containing something like this:
 
 ```html
 <div class="loc article-content">
